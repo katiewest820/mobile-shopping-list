@@ -54,7 +54,7 @@ public class GroceryListController {
     //edit one grocery list
     @RequestMapping(value = "/editGroceryList/{id}", method = RequestMethod.PUT)
     public List<GroceryList> editGroceryList(@PathVariable("id") String id, @RequestBody GroceryList editedGroceryList){
-        long itemCount = mongoOperations.count(new Query(Criteria.where("groceryListId").is(editedGroceryList.id)), Item.class, "item");
+        long itemCount = mongoOperations.count(new Query(Criteria.where("groceryListId").is(editedGroceryList.id).and("active").is(true)), Item.class, "item");
         GroceryList groceryList = mongoOperations.findOne(new Query(Criteria.where("id").is(id)), GroceryList.class, "groceryList");
         groceryList.setItemCount(itemCount);
         groceryList.setActive(editedGroceryList.active);

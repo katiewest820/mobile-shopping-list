@@ -8,58 +8,78 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { WebBrowser } from 'expo';
+import axios from 'axios';
+import { Ionicons } from '@expo/vector-icons';
 
-import { MonoText } from '../components/StyledText';
 
 export default class HomeScreen extends React.Component {
+  constructor(props){
+    super(props)
+    this.state = {
+      groceryLists: []
+    }
+  }
   static navigationOptions = {
     header: null,
   };
 
+  componentDidMount(){
+    this.getAllLists()
+  }
+
+  getAllLists(){
+    axios.get('http://localhost:8080///allGroceryLists').then((res) => {
+      console.log(res.data)
+      this.setState({groceryLists: res.data})
+    }).catch((err) => {
+      console.log(err)
+    })
+  }
+
+  handleListPress(id, name){
+    console.log(id)
+    console.log(name)
+    const { navigate } = this.props.navigation;
+      navigate('EditList', 
+        {
+          listName: name,
+          id: id
+        }
+      )
+  }
+
+  deleteList(id){
+    console.log(id)
+    axios.delete(`http://localhost:8080///deleteGroceryListById/${id}`).then((res) => {
+      console.log(res)
+      this.setState({groceryLists: res.data})
+    }).catch((err) => {
+      console.log(err)
+    })
+  }
+
   render() {
+      let userLists;
+      if(this.state.groceryLists.length > 0){
+        userLists = this.state.groceryLists.map((item, index) => {
+          return ( 
+            <View key={item.id}>
+              <TouchableOpacity onPress={() => {this.handleListPress(item.id, item.name)}}>
+                <Text>{item.name} {item.itemCount}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => {this.deleteList(item.id)}}>
+                <Ionicons name="md-trash" size={22} color="red"/>
+              </TouchableOpacity>
+            </View>
+          )
+        })
+      }
     return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-          <View style={styles.welcomeContainer}>
-            <Image
-              source={
-                __DEV__
-                  ? require('../assets/images/robot-dev.png')
-                  : require('../assets/images/robot-prod.png')
-              }
-              style={styles.welcomeImage}
-            />
-          </View>
-
-          <View style={styles.getStartedContainer}>
-            {this._maybeRenderDevelopmentModeWarning()}
-
-            <Text style={styles.getStartedText}>Get started by opening</Text>
-
-            <View style={[styles.codeHighlightContainer, styles.homeScreenFilename]}>
-              <MonoText style={styles.codeHighlightText}>screens/HomeScreen.js</MonoText>
-            </View>
-
-            <Text style={styles.getStartedText}>
-              Change this text and your app will automatically reload.
-            </Text>
-          </View>
-
-          <View style={styles.helpContainer}>
-            <TouchableOpacity onPress={this._handleHelpPress} style={styles.helpLink}>
-              <Text style={styles.helpLinkText}>Help, it didn’t automatically reload!</Text>
-            </TouchableOpacity>
-          </View>
+          <Text>Your Lists</Text>
+          {userLists}
         </ScrollView>
-
-        <View style={styles.tabBarInfoContainer}>
-          <Text style={styles.tabBarInfoText}>This is a tab bar. You can edit it in:</Text>
-
-          <View style={[styles.codeHighlightContainer, styles.navigationFilename]}>
-            <MonoText style={styles.codeHighlightText}>navigation/MainTabNavigator.js</MonoText>
-          </View>
-        </View>
       </View>
     );
   }
@@ -91,11 +111,6 @@ export default class HomeScreen extends React.Component {
     WebBrowser.openBrowserAsync('https://docs.expo.io/versions/latest/guides/development-mode');
   };
 
-  _handleHelpPress = () => {
-    WebBrowser.openBrowserAsync(
-      'https://docs.expo.io/versions/latest/guides/up-and-running.html#can-t-see-your-changes'
-    );
-  };
 }
 
 const styles = StyleSheet.create({

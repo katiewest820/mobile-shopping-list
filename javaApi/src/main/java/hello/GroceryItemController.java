@@ -31,6 +31,8 @@ public class GroceryItemController {
     //add one item
     @RequestMapping(value = "/addItem", method = POST)
     public ResponseEntity<Item> update(@RequestBody Item newItem){
+
+
         itemRepository.save(newItem);
         GroceryList groceryList = mongoOperations.findOne(new Query(Criteria.where("id").is(newItem.groceryListId)), GroceryList.class, "groceryList");
         long itemCount = groceryList.itemCount +1;
@@ -49,6 +51,16 @@ public class GroceryItemController {
     public List<Item> getItems(){
         return itemRepository.findAll();
     }
+
+    //get all items by search term
+//    @RequestMapping(value = "/allMatchingItems/{itemString}", method = RequestMethod.GET)
+//    public List<Item> findItemByString(@PathVariable("itemString") String itemString){
+//        System.out.println(itemString);
+//        Query query = new Query();
+//        query.addCriteria(Criteria.where("item").regex(itemString));
+//        List itemList = mongoOperations.find(query,Item.class);
+//        return itemList;
+//    }
 
     //get all items by grocery list id
     @RequestMapping(value = "/allItemsByList/{groceryListId}", method = RequestMethod.GET)
@@ -101,6 +113,7 @@ public class GroceryItemController {
     //edit item
     @RequestMapping(value = "/editOne/{id}", method = RequestMethod.PUT)
     public List<Item> editOne(@PathVariable("id") String id, @RequestBody Item editedItemDetails){
+        System.out.println(editedItemDetails);
         Item editItem = mongoOperations.findOne(new Query(Criteria.where("id").is(id)), Item.class, "item");
         System.out.println(editedItemDetails);
         System.out.println(editItem);
