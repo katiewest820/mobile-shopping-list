@@ -1,12 +1,15 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View, FlatList, Button } from 'react-native';
 import axios from 'axios';
+import { SegmentedControls } from 'react-native-radio-buttons'
 
 export default class NewListScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      listName: ''
+      listName: '',
+      selectedOption: '',
+      options: ['To-do List', 'Shopping List']
 
     };
   }
@@ -16,22 +19,41 @@ export default class NewListScreen extends React.Component {
   };
 
   submitList(){
-    axios.post('http://localhost:8080///addGroceryList', {
+    let postUrl;
+    console.log(this.state.selectedOption)
+    if(this.state.selectedOption == 'To-do List'){
+      postUrl = 'addToDoList'
+    }else{
+      this.setState({selectedOption: 'Shopping List'})
+      postUrl = 'addGroceryList'
+    }
+    console.log(postUrl)
+    axios.post(`http://localhost:8080///${postUrl}`, {
       name: this.state.listName,
-      active: true
+      active: true,
+
     }).then((res) => {
       console.log(res.data)
       const { navigate } = this.props.navigation;
       navigate('EditList', 
         {
           listName: this.state.listName,
-          id: res.data.id
+          id: res.data.id,
+          listType: this.state.selectedOption
         }
       )
     }).catch(function (error) {
     console.log(error);
   })
     
+  }
+
+  setSelectedOption(selectedOption){
+
+    this.setState({
+      selectedOption: selectedOption
+    });
+    console.log(this.state.selectedOption)
   }
   
    render() {
@@ -45,6 +67,12 @@ export default class NewListScreen extends React.Component {
             placeholder="List Name"
             onChangeText={(text) => this.setState({listName: text})}
           />
+          <SegmentedControls
+            options={ this.state.options }
+            onSelection={ this.setSelectedOption.bind(this) }
+            selectedOption={ this.state.selectedOption }
+          />
+
           <Button
             onPress={this.submitList.bind(this)}
             title="Create"
@@ -52,9 +80,6 @@ export default class NewListScreen extends React.Component {
             accessibilityLabel="Learn more about this purple button"
 
           />
-
-
-         
         </View>
       </ScrollView>
     );

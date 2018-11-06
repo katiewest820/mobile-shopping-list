@@ -1,22 +1,18 @@
 package hello;
 
-public class GroceryList {
+public class ToDoList {
 
     public String id;
     public String name;
-    public boolean active;
     public long itemCount;
+    public boolean active;
 
     public String getName() {
         return name;
     }
 
-    public boolean isActive() {
-        return active;
-    }
-
-    public long getItemCount() {
-        return itemCount;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getId() {
@@ -27,15 +23,19 @@ public class GroceryList {
         this.id = id;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
+    public long getItemCount() {
+        return itemCount;
     }
 
     public void setItemCount(long itemCount) {
         this.itemCount = itemCount;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

@@ -16,7 +16,8 @@ export default class HomeScreen extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-      groceryLists: []
+      groceryLists: [],
+      toDoLists: []
     }
   }
   static navigationOptions = {
@@ -24,10 +25,11 @@ export default class HomeScreen extends React.Component {
   };
 
   componentDidMount(){
-    this.getAllLists()
+    this.getAllGroceryLists();
+    this.getAllToDoLists();
   }
 
-  getAllLists(){
+  getAllGroceryLists(){
     axios.get('http://localhost:8080///allGroceryLists').then((res) => {
       console.log(res.data)
       this.setState({groceryLists: res.data})
@@ -36,49 +38,79 @@ export default class HomeScreen extends React.Component {
     })
   }
 
-  handleListPress(id, name){
+  getAllToDoLists(){
+    axios.get('http://localhost:8080///allToDoLists').then((res) => {
+      console.log(res.data)
+      this.setState({toDoLists: res.data})
+    }).catch((err) => {
+      console.log(err)
+    })
+  }
+
+  handleListPress(id, name, listType){
     console.log(id)
     console.log(name)
     const { navigate } = this.props.navigation;
       navigate('EditList', 
         {
           listName: name,
-          id: id
+          id: id,
+          listType: listType
         }
       )
   }
 
-  deleteList(id){
+  deleteList(id, urlPath, stateVal){
     console.log(id)
-    axios.delete(`http://localhost:8080///deleteGroceryListById/${id}`).then((res) => {
+    axios.delete(`http://localhost:8080///${urlPath}/${id}`).then((res) => {
       console.log(res)
-      this.setState({groceryLists: res.data})
+      this.setState({[stateVal]: res.data})
     }).catch((err) => {
       console.log(err)
     })
   }
 
   render() {
-      let userLists;
+      let userGroceryLists;
       if(this.state.groceryLists.length > 0){
-        userLists = this.state.groceryLists.map((item, index) => {
+        userGroceryLists = this.state.groceryLists.map((item, index) => {
           return ( 
             <View key={item.id}>
-              <TouchableOpacity onPress={() => {this.handleListPress(item.id, item.name)}}>
+              <TouchableOpacity onPress={() => {this.handleListPress(item.id, item.name, 'Shopping List')}}>
                 <Text>{item.name} {item.itemCount}</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => {this.deleteList(item.id)}}>
+              <TouchableOpacity onPress={() => {this.deleteList(item.id, 'deleteGroceryListById', 'groceryLists')}}>
                 <Ionicons name="md-trash" size={22} color="red"/>
               </TouchableOpacity>
             </View>
           )
         })
       }
+
+      let userToDoLists;
+      if(this.state.toDoLists.length > 0){
+        userToDoLists = this.state.toDoLists.map((item, index) => {
+          return (
+            <View key={item.id}>
+              <TouchableOpacity onPress={() => {this.handleListPress(item.id, item.name, 'To-do List')}}>
+                <Text>{item.name} {item.itemCount}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => {this.deleteList(item.id, 'deleteToDoListById', 'toDoLists')}}>
+                <Ionicons name="md-trash" size={22} color="red"/>
+              </TouchableOpacity>
+            </View>
+          )
+        })
+      }
+
     return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-          <Text>Your Lists</Text>
-          {userLists}
+          <Text style={styles.listTitle}>Your Grocery Lists</Text>
+          {userGroceryLists}
+          <View style={styles.listTypeDivider} ></View>
+          <Text style={styles.listTitle} >Your To-Do Lists</Text>
+          {userToDoLists}
         </ScrollView>
       </View>
     );
@@ -117,6 +149,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    padding: 20
+  },
+  listTypeDivider: {
+    borderBottomWidth: 2,
+    borderBottomColor: 'grey',
+    margin: 10
+  },
+  listTitle: {
+    fontSize: 18,
+    textAlign: 'center',
   },
   developmentModeText: {
     marginBottom: 20,

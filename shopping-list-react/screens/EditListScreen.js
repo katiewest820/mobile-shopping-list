@@ -9,10 +9,11 @@ export default class NewListScreen extends React.Component {
     this.state = {
       listItems: [],
       listName: this.props.navigation.state.params.listName,
-      editListName: false
+      editListName: false,
+      listType: this.props.navigation.state.params.listType
     };
 
-    console.log(props.navigation.state.params.listName)
+    console.log(props.navigation.state.params)
   }
 
   static navigationOptions = {
@@ -21,13 +22,22 @@ export default class NewListScreen extends React.Component {
 
   componentDidMount(){
     console.log(this.props.navigation.state.params.id)
-    axios.get(`http://localhost:8080///oneGroceryList/${this.props.navigation.state.params.id}`).then((res) => {
+    let listUrl;
+    let itemUrl;
+    if(this.state.listType == 'To-do List'){
+      listUrl = 'oneToDoList';
+      itemUrl = 'allToDoItemsByList';
+    }else{
+      listUrl = 'oneGroceryList';
+      itemUrl = 'allItemsByList';
+    }
+    axios.get(`http://localhost:8080///${listUrl}/${this.props.navigation.state.params.id}`).then((res) => {
       this.setState({listName: res.data.name})
     }).catch((err) => {
       console.log(err)
     })
 
-    axios.get(`http://localhost:8080///allItemsByList/${this.props.navigation.state.params.id}`).then((res) => {
+    axios.get(`http://localhost:8080///${itemUrl}/${this.props.navigation.state.params.id}`).then((res) => {
       console.log(res)
       for(let i = 0; i < res.data.length; i++){
         if(res.data[i].active){
@@ -57,7 +67,19 @@ export default class NewListScreen extends React.Component {
     console.log('edit me pleaseeeeeee')
     console.log(item)
     const { navigate } = this.props.navigation;
-
+    if(this.state.listType == 'To-do List'){
+      navigate('AddToDoList', 
+        {
+          listName: this.props.navigation.state.params.listName,
+          id: this.props.navigation.state.params.id,
+          newItemBoolean: false,
+          currentListItemToEdit: item.item,
+          currentListItemDate: item.dueDate,
+          currentListItemNotes: item.notes,
+          currentListItemIdToEdit: item.id
+        }
+      )
+    }else{
     navigate('AddList', 
         {
           listName: this.props.navigation.state.params.listName,
@@ -68,6 +90,7 @@ export default class NewListScreen extends React.Component {
           currentListItemIdToEdit: item.id
         }
       )
+    }
   }
 
   backToHome(){
@@ -79,7 +102,13 @@ export default class NewListScreen extends React.Component {
     console.log(this.props.navigation.state.params.listName)
     console.log(this.state.listName)
     this.setState({editListName: false})
-    axios.put(`http://localhost:8080///editGroceryList/${this.props.navigation.state.params.id}`, {
+    let editUrl;
+    if(this.state.listType == 'To-do List'){
+      editUrl = 'editOneToDoItem';
+    }else{
+      editUrl = 'editGroceryList';
+    }
+    axios.put(`http://localhost:8080///${editUrl}/${this.props.navigation.state.params.id}`, {
       active: true,
       id: this.props.navigation.state.params.id,
       name: this.state.listName
@@ -91,8 +120,14 @@ export default class NewListScreen extends React.Component {
   }
 
   deleteItem(item){
+    let deleteUrl;
+    if(this.state.listType == 'To-do List'){
+      deleteUrl = 'deleteOneToDoItem';
+    }else{
+      deleteUrl = 'deleteOne'
+    }
     console.log(item)
-    axios.delete(`http://localhost:8080///deleteOne/${item.id}`).then((res) => {
+    axios.delete(`http://localhost:8080///${deleteUrl}/${item.id}`).then((res) => {
       console.log(res.data)
       this.setState({listItems: res.data})
     }).catch((err) => {
