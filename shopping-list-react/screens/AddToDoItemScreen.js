@@ -1,7 +1,8 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View, FlatList, Button } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, View, FlatList, Button, TouchableOpacity} from 'react-native';
 import DatePicker from 'react-native-datepicker'
 import axios from 'axios';
+import { Ionicons } from '@expo/vector-icons';
 
 export default class NewToDoListScreen extends React.Component {
   constructor(props) {
@@ -88,7 +89,6 @@ export default class NewToDoListScreen extends React.Component {
 
   backToHome(){
     const { navigate } = this.props.navigation;
-    
     navigate('EditList', 
         {
           listName: this.props.navigation.state.params.listName,
@@ -108,7 +108,10 @@ export default class NewToDoListScreen extends React.Component {
     let currentListDate = this.state.newItem ? "Select Date" : `${this.state.currentListDate}`
     console.log(currentListDate)
     return (
-      <ScrollView>
+      <ScrollView style={{flex: 1, padding: 40}}>
+        <TouchableOpacity onPress={this.backToHome.bind(this)}>
+          <Ionicons name="md-arrow-back" size={22} />        
+        </TouchableOpacity>
         <View style={{padding: 10}}>
           
           <TextInput
@@ -148,7 +151,7 @@ export default class NewToDoListScreen extends React.Component {
           />
           <Button
             onPress={this.submitItem.bind(this)}
-            title="Add"
+            title="Save"
             color="#841584"
             accessibilityLabel="Learn more about this purple button"
           />

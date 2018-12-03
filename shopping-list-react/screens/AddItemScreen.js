@@ -1,6 +1,7 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View, FlatList, Button } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, View, FlatList, Button, TouchableOpacity } from 'react-native';
 import axios from 'axios';
+import { Ionicons } from '@expo/vector-icons';
 
 export default class NewListScreen extends React.Component {
   constructor(props) {
@@ -111,9 +112,12 @@ export default class NewListScreen extends React.Component {
     let currentListQuantity = this.state.newItem ? "List Item Quantity" : `${this.state.currentListQuantity}`
     console.log(currentListQuantity)
     return (
-      <ScrollView>
+      <ScrollView style={{flex: 1, padding: 40}}>
+        <TouchableOpacity onPress={this.backToHome.bind(this)}>
+          <Ionicons name="md-arrow-back" size={22} />        
+        </TouchableOpacity>
+        
         <View style={{padding: 10}}>
-          
           <TextInput
             style={{height: 40}}
             placeholder={currentListItem}

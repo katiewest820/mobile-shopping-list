@@ -53,14 +53,23 @@ export default class NewListScreen extends React.Component {
   addItem(){
     console.log('in testSubmit')
     const { navigate } = this.props.navigation;
-
-    navigate('AddList', 
+    if(this.state.listType == 'To-do List'){
+      navigate('AddToDoList', 
+        {
+          listName: this.props.navigation.state.params.listName,
+          id: this.props.navigation.state.params.id,
+          newItemBoolean: true,
+        }
+      )
+    }else {
+      navigate('AddList', 
         {
           listName: this.props.navigation.state.params.listName,
           id: this.props.navigation.state.params.id,
           newItemBoolean: true
         }
       )
+    }
   }
 
   editItem(item){
@@ -141,9 +150,9 @@ export default class NewListScreen extends React.Component {
     let listNameDisplay;
     if(this.state.editListName){
       listNameDisplay = (
-        <View>
+        <View style={styles.centeredLine}>
           <TextInput
-              style={{padding: 10, fontSize: 42}}
+              style={{paddingRight: 10, fontSize: 42}}
               placeholder={this.state.listName}
               onChangeText={(text) => this.setState({listName: text})}
           />
@@ -154,8 +163,8 @@ export default class NewListScreen extends React.Component {
       )
     }else{
       listNameDisplay = (
-        <View>
-          <Text style={{padding: 10, fontSize: 42}}>
+        <View style={styles.centeredLine}>
+          <Text style={{paddingBottom: 10, paddingRight: 10, fontSize: 42}}>
               {this.state.listName}
           </Text>
           <TouchableOpacity onPress={() => this.setState({editListName: true})}>
@@ -166,8 +175,8 @@ export default class NewListScreen extends React.Component {
     }
     
     return (
-      <ScrollView style={styles.container}>
-        <View style={{padding: 10}}>
+      <ScrollView style={{flex: 1}}>
+        <View style={{padding: 40}}>
           <Button
             onPress={this.addItem.bind(this)}
             title="Add"
@@ -179,8 +188,9 @@ export default class NewListScreen extends React.Component {
 
           
           <FlatList
+            
             data={this.state.listItems}
-            renderItem={({item}) => <TouchableOpacity key={item.id}><Text onPress={() => this.editItem(item)} >{item.quantity} {item.item}</Text><Ionicons name="md-checkmark" size={20} onPress={() => this.deleteItem(item)}/></TouchableOpacity>}
+            renderItem={({item}) => <TouchableOpacity style={{height: 30}} key={item.id}><View style={styles.centeredLine}><Text onPress={() => this.editItem(item)} >{item.quantity} {item.item} {item.dueDate}</Text><Ionicons name="md-checkmark" size={20} onPress={() => this.deleteItem(item)}/></View></TouchableOpacity>}
           />
         </View>
 
@@ -197,8 +207,13 @@ export default class NewListScreen extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 10,
     paddingTop: 15,
     backgroundColor: '#fff',
+
   },
+  centeredLine: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  }
 });
